@@ -1,0 +1,160 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//user model
+model User {
+  id              Int               @id @default(autoincrement())
+  userName        String           
+  email           String            @unique
+  password        String
+  phoneNo         String
+  role  Role @default(CUSTOMER)
+  addresses       Address[]
+  cart Cart? 
+  orders          Order[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+}
+enum Role {
+  CUSTOMER
+  ADMIN
+  SELLER
+}
+
+//Address model link to User
+model Address {
+  id             Int       @id @default(autoincrement())
+  name String
+  locality         String
+  address         String
+  city           String
+  state          String
+  postalCode     String
+  phoneNo String
+  alternetPhone String
+  landMark    String
+  country        String @default("India")
+  isBilling      Boolean   @default(false)
+  BillingAddress     BillingAddress[]
+  userId         Int
+  user           User      @relation(fields: [userId], references: [id])
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+//Billing Address model link to Address
+model BillingAddress {
+  id             Int       @id @default(autoincrement())
+  name String
+  locality         String
+  address         String
+  city           String
+  state          String
+  postalCode     String
+  phoneNo String
+  alternetPhone String
+  landMark    String
+  country        String @default("India")
+  AddressId         Int
+  Address           Address      @relation(fields: [AddressId], references: [id])
+  isBilling      Boolean   @default(true)   // Ensuring it is the billing address
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+// Product model link to Cart
+model Product {
+  id                    Int       @id @default(autoincrement())
+  productId String @unique
+  name                  String
+  description           String
+  price                 Float
+  salePrice             Float?
+  sku                   String
+  stock                 Int
+  category              String
+  brand                 String
+  manufacturer          String?
+  material              String?
+  warranty              String?
+  expirationDate        DateTime?
+  barcode               String?
+  rating                Float?
+  ratingCount           Int?
+  shippingWeight        Float?
+  availabilityStatus    String
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  images                String[]
+  tags                  String[]
+  dimensions            String?
+  featured              Boolean
+  productType           String?
+  isDigital             Boolean
+  shippingRegion        String?
+  returnPolicy          String?
+  bundle                String?
+  sellerId String
+
+  cartId Int
+  cart Cart @relation(fields: [cartId],references: [id])
+  specification       Specification[]
+
+}
+
+//Specification model link to Product
+model Specification{
+
+  id Int @id @default(autoincrement())
+  specName String
+  heiglights String[]
+  productId Int
+  product Product @relation(fields: [productId],references: [id])
+
+   
+
+}
+
+// cart model link to order
+
+model Cart{
+id Int @id @default(autoincrement())
+product Product[]
+quantity String
+userId Int @unique
+user User @relation(fields: [userId],references: [id])
+}
+
+model Coupan{
+  id Int @id @default(autoincrement())
+  coupan_code String
+  status String @default("Active")
+  discountValue Float
+  startDate   DateTime? 
+  endDate DateTime?
+  createdAt    DateTime   @default(now()) 
+  updatedAt        DateTime   @updatedAt  
+}
+model Order {
+  id             Int       @id @default(autoincrement())
+  totalAmount    Float
+  CoupanId String[]
+  status         String    @default("Pending")
+  userId         Int
+  user           User      @relation(fields: [userId], references: [id])
+    createdAt      DateTime  @default(now())
+}
