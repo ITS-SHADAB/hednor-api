@@ -24,6 +24,7 @@ model User {
   addresses       Address[]
   cart Cart? 
   orders          Order[]
+  rejectedProduct RejectedProduct?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
@@ -99,7 +100,7 @@ model Product {
   availabilityStatus    String
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
-  images                String[]
+  images               Image[]
   tags                  String[]
   dimensions            String?
   featured              Boolean
@@ -110,12 +111,19 @@ model Product {
   bundle                String?
   sellerId String
 
-  cartId Int
-  cart Cart @relation(fields: [cartId],references: [id])
-  specification       Specification[]
-
+  cartId Int?
+  cart Cart? @relation(fields: [cartId],references: [id])
+  rejectedProduct RejectedProduct[]
+ Specification Specification[]
 }
-
+//Product Image
+model Image {
+  id        Int      @id @default(autoincrement())
+  url       String   // Image URL or file path
+  color     String   // Color associated with the image (e.g., 'red', 'green')
+  productId Int      // Foreign key to Product
+  product   Product  @relation(fields: [productId], references: [id])
+}
 //Specification model link to Product
 model Specification{
 
@@ -130,15 +138,17 @@ model Specification{
 }
 
 // cart model link to order
-
 model Cart{
 id Int @id @default(autoincrement())
 product Product[]
 quantity String
 userId Int @unique
 user User @relation(fields: [userId],references: [id])
+order Order?
 }
 
+
+//cart Coupan
 model Coupan{
   id Int @id @default(autoincrement())
   coupan_code String
@@ -149,12 +159,51 @@ model Coupan{
   createdAt    DateTime   @default(now()) 
   updatedAt        DateTime   @updatedAt  
 }
+
+model Payment{
+id Int @id @default(autoincrement())
+method_name String
+status PaymentStatus @default(Pending)
+transactionId Int
+amount Float
+createdAt    DateTime   @default(now()) 
+updatedAt        DateTime   @updatedAt  
+}
+
+// enum for Payment
+enum PaymentStatus{
+  Pending
+  Completed
+  Failed
+  Refunded
+  Cancelled
+  Processing
+} 
+// enum for orderStatus
+enum orderStatus{
+  Pending
+  Success
+  Failed
+  Rejected
+  Processing
+}
 model Order {
   id             Int       @id @default(autoincrement())
   totalAmount    Float
   CoupanId String[]
   status         String    @default("Pending")
+  cartId Int @unique
+  cart Cart @relation(fields: [cartId],references: [id])
   userId         Int
   user           User      @relation(fields: [userId], references: [id])
-    createdAt      DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  updatedAt        DateTime   @updatedAt  
+}
+
+model RejectedProduct{
+  id Int @id @default(autoincrement())
+  userId Int @unique
+  user User @relation(fields: [userId],references: [id])
+  product Product[]
+
 }
