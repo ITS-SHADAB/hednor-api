@@ -16,6 +16,7 @@ datasource db {
 //user model
 model User {
   id              Int               @id @default(autoincrement())
+  userId String @unique
   userName        String           
   email           String            @unique
   password        String
@@ -114,7 +115,7 @@ model Product {
   cartId Int?
   cart Cart? @relation(fields: [cartId],references: [id])
   rejectedProducts    RejectedProduct[] @relation("RejectedProductToProduct")
- Specification Specification[]
+  Specification Specification[]
 
   RejectedProduct RejectedProduct[]
 }
@@ -132,18 +133,28 @@ model Image {
 model Specification{
 
   id Int @id @default(autoincrement())
-  specName String
-  heiglights String[]
+  highlightsName String
+  higlights String[]
   productId Int
   product Product @relation(fields: [productId],references: [id])
+  values  SpecificationValue[]
 
-   
+}
+// specification value specification based price
+model SpecificationValue{
+  id Int @id @default(autoincrement())
+  specName String
+  price Float
+  specificationId  Int
+  specification Specification @relation(fields: [specificationId], references: [id])
+
 
 }
 
 // cart model link to order
 model Cart{
 id Int @id @default(autoincrement())
+cartId String @unique
 product Product[]
 quantity String
 userId Int @unique
@@ -155,6 +166,7 @@ order Order?
 //cart Coupan
 model Coupan{
   id Int @id @default(autoincrement())
+  coupanId String @unique
   coupan_code String
   status String @default("Active")
   discountValue Float
@@ -166,6 +178,7 @@ model Coupan{
 
 model Payment{
 id Int @id @default(autoincrement())
+paymentId String @unique
 method_name String
 status PaymentStatus @default(Pending)
 transactionId Int
@@ -193,6 +206,7 @@ enum orderStatus{
 }
 model Order {
   id             Int       @id @default(autoincrement())
+  orderId String @unique
   totalAmount    Float
   CoupanId String[]
   status         String    @default("Pending")
