@@ -113,14 +113,18 @@ model Product {
 
   cartId Int?
   cart Cart? @relation(fields: [cartId],references: [id])
-  rejectedProduct RejectedProduct[]
+  rejectedProducts    RejectedProduct[] @relation("RejectedProductToProduct")
  Specification Specification[]
+
+  RejectedProduct RejectedProduct[]
 }
 //Product Image
 model Image {
   id        Int      @id @default(autoincrement())
   url       String   // Image URL or file path
   color     String   // Color associated with the image (e.g., 'red', 'green')
+  images String[]
+  price Int
   productId Int      // Foreign key to Product
   product   Product  @relation(fields: [productId], references: [id])
 }
@@ -206,4 +210,6 @@ model RejectedProduct{
   user User @relation(fields: [userId],references: [id])
   product Product[]
 
+
+  Product Product[] @relation("RejectedProductToProduct")
 }
