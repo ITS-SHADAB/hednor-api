@@ -29,6 +29,8 @@ model User {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
+
+  Seller Seller[]
 }
 enum Role {
   CUSTOMER
@@ -88,7 +90,7 @@ model Product {
   salePrice             Float?
   sku                   String
   stock                 Int
-  category              String
+
   brand                 String
   manufacturer          String?
   material              String?
@@ -110,6 +112,8 @@ model Product {
   shippingRegion        String?
   returnPolicy          String?
   bundle                String?
+  category String
+  // link to seller
   sellerId String
 
   cartId Int?
@@ -118,6 +122,24 @@ model Product {
   Specification Specification[]
 
   RejectedProduct RejectedProduct[]
+
+  SellerProduct SellerProduct[]
+}
+model ProductCategory{
+  id Int @id @default(autoincrement())
+  name String
+  image String
+  description String?
+  subCategory ProductSubCategory[]
+
+
+}
+
+model ProductSubCategory{
+  id Int @id @default(autoincrement())
+  name String
+  productCategoryId Int
+  productCategory ProductCategory @relation(fields: [productCategoryId],references: [id])
 }
 //Product Image
 model Image {
@@ -216,6 +238,8 @@ model Order {
   user           User      @relation(fields: [userId], references: [id])
   createdAt      DateTime  @default(now())
   updatedAt        DateTime   @updatedAt  
+
+  Seller Seller[]
 }
 
 model RejectedProduct{
@@ -226,4 +250,74 @@ model RejectedProduct{
 
 
   Product Product[] @relation("RejectedProductToProduct")
+}
+
+
+
+
+// SELLER
+// Seller model for sellers
+model Seller {
+  id                  Int               @id @default(autoincrement())
+  sellerId String @unique
+  businessName        String
+  businessEmail       String            @unique
+  sellerPanNumber     String            @unique
+  sellerGSTNumber     String            @unique
+  sellerAccountNumber Int               @unique
+  sellerIFSCCode      String            @unique
+  sellerBankName      String            
+  userId              Int                
+  user                User              @relation(fields: [userId], references: [id]) 
+  businesslogo        String?           
+  status              SellerStatus      @default(INACTIVE)  
+  commissionRate      Float?            
+  registrationDate    DateTime         @default(now())  
+  businessDescription String?           
+  verified            Boolean           @default(false) 
+  totalSales          Int?              
+  pickupRegions       String[]          
+  sellerRating  Float
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  products            SellerProduct[]         
+  orders              Order[]           
+  sellercategories    SellerCategory[]  
+}
+// seller Docs
+ 
+ model SellerDocuments{
+  id Int @id @default(autoincrement())
+  panURL String
+  gstUrl String
+  passbook String
+
+ }
+
+//  SellerProduct
+model SellerProduct{
+  id Int @id @default(autoincrement())
+  sellerId String
+  seller Seller @relation(fields: [sellerId],references: [sellerId])
+  productId String
+  product Product @relation(fields: [productId],references: [productId])
+
+}
+
+//Enum for seller status
+enum SellerStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+// Category model to categorize products by sellers (optional)
+model SellerCategory {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  description String?
+  sellerId    Int
+  seller      Seller      @relation(fields: [sellerId], references: [id])
+  createdAt   DateTime    @default (now())
+  updatedAt   DateTime    @updatedAt  
 }
