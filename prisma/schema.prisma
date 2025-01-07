@@ -207,3 +207,51 @@ model RejectedProduct{
   product Product[]
 
 }
+
+
+// Seller model for sellers
+model Seller {
+  id                  Int               @id @default(autoincrement())
+  businessName        String
+  businessEmail       String            @unique
+  sellerPanNumber     String            @unique
+  sellerGSTNumber     String            @unique
+  sellerAccountNumber Int               @unique
+  sellerIFSCCode      String            @unique
+  sellerBankName      String            
+  userId              Int                
+  user                User              @relation(fields: [userId], references: [id]) 
+  businesslogo        String?           
+  status              SellerStatus      @default(INACTIVE)  
+  commissionRate      Float?            
+  registrationDate    DateTime         @default(now())  
+  businessDescription String?           
+  verified            Boolean           @default(false) 
+  totalSales          Int?              
+  pickupRegions       String[]          
+  sellerRating 
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  products            Product[]         
+  orders              Order[]           
+  sellercategories    Category[]  
+}
+ 
+
+//Enum for seller status
+enum SellerStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}`
+
+// Category model to categorize products by sellers (optional)
+modal Category {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  description String?
+  sellerId    Int
+  seller      Seller      @relation(fields: [sellerId], references: [id])
+  createdAt   DateTime    @default (now())
+  updatedAt   DateTime    @updatedAt  
+}
