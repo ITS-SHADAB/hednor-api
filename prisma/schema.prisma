@@ -179,7 +179,7 @@ id Int @id @default(autoincrement())
 cartId String @unique
 product Product[]
 quantity String
-userId Int @unique
+userId Int  @unique
 user User @relation(fields: [userId],references: [id])
 order Order?
 }
@@ -283,6 +283,10 @@ model Seller {
 
 
   SellerOrder SellerOrder[]
+
+  SellerDocuments SellerDocuments?
+
+  Warehouse Warehouse[]
 }
 
 model SellerOrder{
@@ -311,12 +315,16 @@ model Warehouse{
   landMark    String
   createdAt      DateTime  @default(now())
   updatedAt        DateTime   @updatedAt  
-  
+  sellerId String
+  seller Seller @relation(fields: [sellerId],references: [sellerId])
+
 }
 // seller Docs
  
  model SellerDocuments{
   id Int @id @default(autoincrement())
+  sellerId String @unique
+  seller Seller @relation(fields: [sellerId],references: [sellerId])
   panURL String
   gstUrl String
   passbook String
