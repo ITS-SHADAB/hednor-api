@@ -115,15 +115,15 @@ model Product {
   category String
   // link to seller
   sellerId String
+  seller Seller @relation(fields: [sellerId],references: [sellerId])
 
   cartId Int?
   cart Cart? @relation(fields: [cartId],references: [id])
   rejectedProducts    RejectedProduct[] @relation("RejectedProductToProduct")
   Specification Specification[]
+  SellerOrder SellerOrder[]
 
-  RejectedProduct RejectedProduct[]
 
-  SellerProduct SellerProduct[]
 }
 model ProductCategory{
   id Int @id @default(autoincrement())
@@ -239,15 +239,13 @@ model Order {
   createdAt      DateTime  @default(now())
   updatedAt        DateTime   @updatedAt  
 
-  Seller Seller[]
+
 }
 
 model RejectedProduct{
   id Int @id @default(autoincrement())
   userId Int @unique
   user User @relation(fields: [userId],references: [id])
-  product Product[]
-
 
   Product Product[] @relation("RejectedProductToProduct")
 }
@@ -280,9 +278,40 @@ model Seller {
   sellerRating  Float
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
-  products            SellerProduct[]         
-  orders              Order[]           
-  sellercategories    SellerCategory[]  
+  products            Product[]         
+      
+
+
+  SellerOrder SellerOrder[]
+}
+
+model SellerOrder{
+  id Int @id @default(autoincrement())
+
+  sellerId String
+  seller Seller @relation(fields: [sellerId],references: [sellerId])
+  productId String
+  product Product @relation(fields: [productId],references: [productId])
+  CoupanId String[]
+  
+ createdAt      DateTime  @default(now())
+  updatedAt        DateTime   @updatedAt  
+}
+
+model Warehouse{
+  id Int @id @default(autoincrement())
+ name String
+  locality         String
+  address         String
+  city           String
+  state          String
+  postalCode     String
+  phoneNo String
+  alternetPhone String
+  landMark    String
+  createdAt      DateTime  @default(now())
+  updatedAt        DateTime   @updatedAt  
+  
 }
 // seller Docs
  
@@ -295,14 +324,6 @@ model Seller {
  }
 
 //  SellerProduct
-model SellerProduct{
-  id Int @id @default(autoincrement())
-  sellerId String
-  seller Seller @relation(fields: [sellerId],references: [sellerId])
-  productId String
-  product Product @relation(fields: [productId],references: [productId])
-
-}
 
 //Enum for seller status
 enum SellerStatus {
@@ -311,13 +332,3 @@ enum SellerStatus {
   SUSPENDED
 }
 
-// Category model to categorize products by sellers (optional)
-model SellerCategory {
-  id          Int         @id @default(autoincrement())
-  name        String      @unique
-  description String?
-  sellerId    Int
-  seller      Seller      @relation(fields: [sellerId], references: [id])
-  createdAt   DateTime    @default (now())
-  updatedAt   DateTime    @updatedAt  
-}
