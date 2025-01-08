@@ -302,13 +302,13 @@ model SellerOrder{
   product Product @relation(fields: [productId],references: [productId])
   CoupanId String[]
   
- createdAt      DateTime  @default(now())
+  createdAt      DateTime  @default(now())
   updatedAt        DateTime   @updatedAt  
 }
 
 model Warehouse{
   id Int @id @default(autoincrement())
- name String
+  name String
   locality         String
   address         String
   city           String
@@ -343,4 +343,7 @@ enum SellerStatus {
   INACTIVE
   SUSPENDED
 }
+
+
+// ADMIN MODEL
 
